@@ -109,7 +109,8 @@ def ansys_indus(industry, plot_on=True):
 
     for i, val in tqdm(stocks_list.iterrows()):
         _, data = ansys_sigle(name=val['name'], ts_code=val['ts_code'], industry=val['industry'], plot_on=False)
-        pe, pb = data.iloc[-1, :][['pe', 'pb']].values
+        pe, pb = data[['pe', 'pb']].values[-1, :]
+
         # 筛选
         if (pe is not None) and (pe < top10_PE[-1, 0]):
             top10_PE[-1, :] = [pe, pb]
@@ -132,22 +133,23 @@ def ansys_indus(industry, plot_on=True):
         top10_PE_DF = top10_PE_DF.append(pd.DataFrame({'PE_rank': [rank],
                                                        'name': [data1.loc[0, 'name']],
                                                        'ts_code': [data1.loc[0, 'ts_code']],
-                                                       'PE': [data1.loc[-1, 'pe']],
-                                                       'PB': [data1.loc[-1, 'pb']]
+                                                       'PE': top10_PE[rank-1, 0],
+                                                       'PB': top10_PE[rank-1, 1]
                                                        }))
         top10_PB_DF = top10_PB_DF.append(pd.DataFrame({'PB_rank': [rank],
                                                        'name': [data2.loc[0, 'name']],
                                                        'ts_code': [data2.loc[0, 'ts_code']],
-                                                       'PE': [data2.loc[-1, 'pe']],
-                                                       'PB': [data2.loc[-1, 'pb']]
+                                                       'PE': top10_PB[rank-1, 0],
+                                                       'PB': top10_PB[rank-1, 1]
                                                          }))
+        rank += 1
     print(top10_PE_DF)
     print(top10_PB_DF)
 
     # 保存文件
-    path = os.path.join(os.getcwd(), 'basis_ansys_result\\top10_PE.csv')
+    path = os.path.join(os.getcwd(), 'basis_ansys_result\\%s_PEtop10.csv' % industry)
     top10_PE_DF.to_csv(path, index=False)
-    path = os.path.join(os.getcwd(), 'basis_ansys_result\\top10_PB.csv')
+    path = os.path.join(os.getcwd(), 'basis_ansys_result\\%s_PBtop10.csv' % industry)
     top10_PB_DF.to_csv(path, index=False)
 
     # 绘图
@@ -176,8 +178,8 @@ def ansys_indus(industry, plot_on=True):
 
 if __name__ == '__main__':
     # 单股查看
-    name = '通化金马'
-    ansys_sigle(name)
+    # name = '通化金马'
+    # ansys_sigle(name)
 
     # 板块查看
     industry = "化学制药"

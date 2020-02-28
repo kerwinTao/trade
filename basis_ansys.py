@@ -12,7 +12,6 @@ plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
 
 
 def ansys_sigle(name, ts_code=None, industry=None, plot_on=True):
-
     while 1:
         try:
             if ts_code == None and industry == None:
@@ -99,17 +98,15 @@ def ansys_indus(industry, plot_on=True):
     print('[-%s-]板块共计[-%d-]只股票，正在排序中...' % (industry, len(stocks_list)))
     for i, val in tqdm(stocks_list.iterrows()):
         _, data = ansys_sigle(name=val['name'], ts_code=val['ts_code'], industry=val['industry'], plot_on=False)
-        pe, pb = data.iloc[-1, :][['pe', 'pb']]
-
+        pe, pb = data.iloc[-1, :][['pe', 'pb']].values
         # 筛选
-        if len(pe) > 0 and pe < top10_PE[-1, 0]:
+        if (pe is not None) and (pe < top10_PE[-1, 0]):
             top10_PE[-1, :] = [pe, pb]
             data_list_PE[-1] = data
 
-        if len(pe) > 0 and pb < top10_PB[-1, 1]:
+        if (pb is not None) and (pb < top10_PB[-1, 1]):
             top10_PB[-1, :] = [pe, pb]
             data_list_PB[-1] = data
-
         # 排序
         data_list_PE = [data_list_PE[x] for x in top10_PE[:, 0].argsort()]
         data_list_PB = [data_list_PB[x] for x in top10_PB[:, 1].argsort()]
@@ -121,6 +118,7 @@ def ansys_indus(industry, plot_on=True):
         fig = plt.figure()
         ax1 = fig.add_subplot(2, 1, 1)
         ax2 = fig.add_subplot(2, 1, 2)
+        rank = 1
         for data1, data2 in zip(data_list_PE, data_list_PB):
             ax1.plot(data1['trade_date'], data1['pe'], label=(data1.loc[0, 'name'] + '_PE'))
             ax1.xaxis.set_major_locator(LinearLocator(numticks=8))

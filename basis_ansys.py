@@ -13,15 +13,14 @@ plt.rcParams['axes.unicode_minus'] = False  # 用来正常显示负号
 
 def ansys_sigle(name, ts_code=None, industry=None, plot_on=True):
 
-    if ts_code == None and industry==None:
-        # 查询ts_code
-        stocks_list = pro.stock_basic(exchange='', list_status='L', fields='ts_code,name,industry')
-        stock = stocks_list[stocks_list['name'] == name]
-        ts_code = stock['ts_code'].values[0]
-        industry = stock['industry'].values[0]
-
     while 1:
         try:
+            if ts_code == None and industry == None:
+                # 查询ts_code
+                stocks_list = pro.stock_basic(exchange='', list_status='L', fields='ts_code,name,industry')
+                stock = stocks_list[stocks_list['name'] == name]
+                ts_code = stock['ts_code'].values[0]
+                industry = stock['industry'].values[0]
             # 当前股价
             pice = ts.pro_bar(ts_code=ts_code)[['trade_date', 'close']]
             orig_data = pice
@@ -103,11 +102,11 @@ def ansys_indus(industry, plot_on=True):
         pe, pb = data.iloc[-1, :][['pe', 'pb']]
 
         # 筛选
-        if top10_PE[-1, 0] and pe < top10_PE[-1, 0]:
+        if len(pe) > 0 and pe < top10_PE[-1, 0]:
             top10_PE[-1, :] = [pe, pb]
             data_list_PE[-1] = data
 
-        if top10_PB[-1, 1] and pb < top10_PB[-1, 1]:
+        if len(pe) > 0 and pb < top10_PB[-1, 1]:
             top10_PB[-1, :] = [pe, pb]
             data_list_PB[-1] = data
 
